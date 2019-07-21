@@ -4,6 +4,101 @@ Release History
 master
 ------
 
+0.7.3 (2019-07-07)
+------------------
+
+**Improvements**
+
+* Camelot now follows the Black code style! [#1](https://github.com/camelot-dev/camelot/pull/1) and [#3](https://github.com/camelot-dev/camelot/pull/3).
+
+**Bugfixes**
+
+* Fix Click.HelpFormatter monkey-patch. [#5](https://github.com/camelot-dev/camelot/pull/5) by [Dimiter Naydenov](https://github.com/dimitern).
+* Fix strip_text argument getting ignored. [#4](https://github.com/camelot-dev/camelot/pull/4) by [Dimiter Naydenov](https://github.com/dimitern).
+* [#25](https://github.com/camelot-dev/camelot/issues/25) edge_tol skipped in read_pdf. [#26](https://github.com/camelot-dev/camelot/pull/26) by Vinayak Mehta.
+* Fix pytest deprecation warning. [#2](https://github.com/camelot-dev/camelot/pull/2) by Vinayak Mehta.
+* [#293](https://github.com/socialcopsdev/camelot/issues/293) Split text ignores all text to the right of last cut. [#294](https://github.com/socialcopsdev/camelot/pull/294) by Vinayak Mehta.
+* [#277](https://github.com/socialcopsdev/camelot/issues/277) Sort TableList by order of tables in PDF. [#283](https://github.com/socialcopsdev/camelot/pull/283) by [Sym Roe](https://github.com/symroe).
+* [#312](https://github.com/socialcopsdev/camelot/issues/312) `table_regions` throws `ValueError` when `flavor='stream'`. [#332](https://github.com/socialcopsdev/camelot/pull/332) by Vinayak Mehta.
+
+0.7.2 (2019-01-10)
+------------------
+
+**Bugfixes**
+
+* [#245](https://github.com/socialcopsdev/camelot/issues/245) Fix AttributeError for encrypted files. [#251](https://github.com/socialcopsdev/camelot/pull/251) by Yatin Taluja.
+
+
+0.7.1 (2019-01-06)
+------------------
+
+**Bugfixes**
+
+* Move ghostscript import to inside the function so Anaconda builds don't fail.
+
+0.7.0 (2019-01-05)
+------------------
+
+**Improvements**
+
+* [#240](https://github.com/socialcopsdev/camelot/issues/209) Add support to analyze only certain page regions to look for tables. [#243](https://github.com/socialcopsdev/camelot/pull/243) by Vinayak Mehta.
+    * You can use `table_regions` in `read_pdf()` to specify approximate page regions which may contain tables.
+    * Kwarg `line_size_scaling` is now called `line_scale`.
+* [#212](https://github.com/socialcopsdev/camelot/issues/212) Add support to export as sqlite database. [#244](https://github.com/socialcopsdev/camelot/pull/244) by Vinayak Mehta.
+* [#239](https://github.com/socialcopsdev/camelot/issues/239) Raise warning if PDF is image-based. [#240](https://github.com/socialcopsdev/camelot/pull/240) by Vinayak Mehta.
+
+**Documentation**
+
+* Remove mention of old mesh kwarg from docs. [#241](https://github.com/socialcopsdev/camelot/pull/241) by [fte10kso](https://github.com/fte10kso).
+
+**Note**: The python wrapper to Ghostscript's C API is now vendorized under the `ext` module. This was done due to unavailability of the [ghostscript](https://pypi.org/project/ghostscript/) package on Anaconda. The code should be removed after we submit a recipe for it to conda-forge. With this release, the user doesn't need to ensure that the Ghostscript executable is available on the PATH variable.
+
+0.6.0 (2018-12-24)
+------------------
+
+**Improvements**
+
+* [#91](https://github.com/socialcopsdev/camelot/issues/91) Add support to read from url. [#236](https://github.com/socialcopsdev/camelot/pull/236) by Vinayak Mehta.
+* [#229](https://github.com/socialcopsdev/camelot/issues/229), [#230](https://github.com/socialcopsdev/camelot/issues/230) and [#233](https://github.com/socialcopsdev/camelot/issues/233) New configuration parameters. [#234](https://github.com/socialcopsdev/camelot/pull/234) by Vinayak Mehta.
+    * `strip_text`: To define characters that should be stripped from each string.
+    * `edge_tol`: Tolerance parameter for extending textedges vertically.
+    * `resolution`: Resolution used for PDF to PNG conversion.
+    * Check out the [advanced docs](https://camelot-py.readthedocs.io/en/master/user/advanced.html#strip-characters-from-text) for usage details.
+* [#170](https://github.com/socialcopsdev/camelot/issues/170) Add option to pass pdfminer layout kwargs. [#232](https://github.com/socialcopsdev/camelot/pull/232) by Vinayak Mehta.
+    * Keyword arguments for [pdfminer.layout.LAParams](https://github.com/euske/pdfminer/blob/master/pdfminer/layout.py#L33) can now be passed using `layout_kwargs` in `read_pdf()`.
+    * The `margins` keyword argument in `read_pdf()` is now deprecated.
+
+0.5.0 (2018-12-13)
+------------------
+
+**Improvements**
+
+* [#207](https://github.com/socialcopsdev/camelot/issues/207) Add a plot type for Stream text edges and detected table areas. [#224](https://github.com/socialcopsdev/camelot/pull/224) by Vinayak Mehta.
+* [#204](https://github.com/socialcopsdev/camelot/issues/204) `suppress_warnings` is now called `suppress_stdout`. [#225](https://github.com/socialcopsdev/camelot/pull/225) by Vinayak Mehta.
+
+**Bugfixes**
+
+* [#217](https://github.com/socialcopsdev/camelot/issues/217) Fix IndexError when scale is large.
+* [#105](https://github.com/socialcopsdev/camelot/issues/105), [#192](https://github.com/socialcopsdev/camelot/issues/192) and [#215](https://github.com/socialcopsdev/camelot/issues/215) in [#227](https://github.com/socialcopsdev/camelot/pull/227) by Vinayak Mehta.
+
+**Documentation**
+
+* Add pdfplumber comparison and update Tabula (stream) comparison. Check out the [wiki page](https://github.com/socialcopsdev/camelot/wiki/Comparison-with-other-PDF-Table-Extraction-libraries-and-tools).
+
+0.4.1 (2018-12-05)
+------------------
+
+**Bugfixes**
+
+* Add chardet to `install_requires` to fix [#210](https://github.com/socialcopsdev/camelot/issues/210). More details in [pdfminer.six#213](https://github.com/pdfminer/pdfminer.six/issues/213).
+
+0.4.0 (2018-11-23)
+------------------
+
+**Improvements**
+
+* [#102](https://github.com/socialcopsdev/camelot/issues/102) Detect tables automatically when Stream is used. [#206](https://github.com/socialcopsdev/camelot/pull/206) Add implementation of Anssi Nurminen's table detection algorithm by Vinayak Mehta.
+
 0.3.2 (2018-11-04)
 ------------------
 

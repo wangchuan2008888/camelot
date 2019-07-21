@@ -16,29 +16,38 @@ filename = os.path.join(testdir, 'foo.pdf')
 def test_unknown_flavor():
     message = ("Unknown flavor specified."
                " Use either 'lattice' or 'stream'")
-    with pytest.raises(NotImplementedError, message=message):
+    with pytest.raises(NotImplementedError, match=message):
         tables = camelot.read_pdf(filename, flavor='chocolate')
 
 
 def test_input_kwargs():
     message = "columns cannot be used with flavor='lattice'"
-    with pytest.raises(ValueError, message=message):
+    with pytest.raises(ValueError, match=message):
         tables = camelot.read_pdf(filename, columns=['10,20,30,40'])
 
 
 def test_unsupported_format():
     message = 'File format not supported'
     filename = os.path.join(testdir, 'foo.csv')
-    with pytest.raises(NotImplementedError, message=message):
+    with pytest.raises(NotImplementedError, match=message):
         tables = camelot.read_pdf(filename)
 
 
 def test_stream_equal_length():
     message = ("Length of table_areas and columns"
                " should be equal")
-    with pytest.raises(ValueError, message=message):
+    with pytest.raises(ValueError, match=message):
         tables = camelot.read_pdf(filename, flavor='stream',
             table_areas=['10,20,30,40'], columns=['10,20,30,40', '10,20,30,40'])
+
+
+def test_image_warning():
+    filename = os.path.join(testdir, 'image.pdf')
+    with warnings.catch_warnings():
+        warnings.simplefilter('error')
+        with pytest.raises(UserWarning) as e:
+            tables = camelot.read_pdf(filename)
+        assert str(e.value) == 'page-1 is image-based, camelot only works on text-based pages.'
 
 
 def test_no_tables_found():
@@ -50,42 +59,39 @@ def test_no_tables_found():
         assert str(e.value) == 'No tables found on page-1'
 
 
+def test_no_tables_found_logs_suppressed():
+    filename = os.path.join(testdir, 'foo.pdf')
+    with warnings.catch_warnings():
+        # the test should fail if any warning is thrown
+        warnings.simplefilter('error')
+        try:
+            tables = camelot.read_pdf(filename, suppress_stdout=True)
+        except Warning as e:
+            warning_text = str(e)
+            pytest.fail('Unexpected warning: {}'.format(warning_text))
+
+
 def test_no_tables_found_warnings_suppressed():
     filename = os.path.join(testdir, 'blank.pdf')
     with warnings.catch_warnings():
         # the test should fail if any warning is thrown
         warnings.simplefilter('error')
         try:
-            tables = camelot.read_pdf(filename, suppress_warnings=True)
+            tables = camelot.read_pdf(filename, suppress_stdout=True)
         except Warning as e:
             warning_text = str(e)
             pytest.fail('Unexpected warning: {}'.format(warning_text))
 
 
-def test_ghostscript_not_found(monkeypatch):
-    import distutils
-
-    def _find_executable_patch(arg):
-        return ''
-
-    monkeypatch.setattr(distutils.spawn, 'find_executable', _find_executable_patch)
-
-    message = ('Please make sure that Ghostscript is installed and available'
-               ' on the PATH environment variable')
-    filename = os.path.join(testdir, 'foo.pdf')
-    with pytest.raises(Exception, message=message):
-        tables = camelot.read_pdf(filename)
-
-
 def test_no_password():
     filename = os.path.join(testdir, 'health_protected.pdf')
     message = 'file has not been decrypted'
-    with pytest.raises(Exception, message=message):
+    with pytest.raises(Exception, match=message):
         tables = camelot.read_pdf(filename)
 
 
 def test_bad_password():
     filename = os.path.join(testdir, 'health_protected.pdf')
     message = 'file has not been decrypted'
-    with pytest.raises(Exception, message=message):
+    with pytest.raises(Exception, match=message):
         tables = camelot.read_pdf(filename, password='wrongpass')

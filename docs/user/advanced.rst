@@ -24,6 +24,12 @@ To process background lines, you can pass ``process_background=True``.
     >>> tables = camelot.read_pdf('background_lines.pdf', process_background=True)
     >>> tables[1].df
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -back background_lines.pdf
+
 .. csv-table::
   :file: ../_static/csv/background_lines.csv
 
@@ -41,8 +47,9 @@ You can specify the type of element you want to plot using the ``kind`` keyword 
 - 'contour'
 - 'line'
 - 'joint'
+- 'textedge'
 
-.. note:: The last three plot types can only be used with :ref:`Lattice <lattice>`, i.e. when ``flavor='lattice'``.
+.. note:: 'line' and 'joint' can only be used with :ref:`Lattice <lattice>` and 'textedge' can only be used with :ref:`Stream <stream>`.
 
 Let's generate a plot for each type using this `PDF <../_static/pdf/foo.pdf>`__ as an example. First, let's get all the tables out.
 
@@ -61,6 +68,12 @@ Let's plot all the text present on the table's PDF page.
 
     >>> camelot.plot(tables[0], kind='text')
     >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -plot text foo.pdf
 
 .. figure:: ../_static/png/plot_text.png
     :height: 674
@@ -83,6 +96,12 @@ Let's plot the table (to see if it was detected correctly or not). This plot typ
     >>> camelot.plot(tables[0], kind='grid')
     >>> plt.show()
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -plot grid foo.pdf
+
 .. figure:: ../_static/png/plot_table.png
     :height: 674
     :width: 1366
@@ -102,6 +121,12 @@ Now, let's plot all table boundaries present on the table's PDF page.
     >>> camelot.plot(tables[0], kind='contour')
     >>> plt.show()
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -plot contour foo.pdf
+
 .. figure:: ../_static/png/plot_contour.png
     :height: 674
     :width: 1366
@@ -118,6 +143,12 @@ Cool, let's plot all line segments present on the table's PDF page.
 
     >>> camelot.plot(tables[0], kind='line')
     >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -plot line foo.pdf
 
 .. figure:: ../_static/png/plot_line.png
     :height: 674
@@ -136,6 +167,12 @@ Finally, let's plot all line intersections present on the table's PDF page.
     >>> camelot.plot(tables[0], kind='joint')
     >>> plt.show()
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -plot joint foo.pdf
+
 .. figure:: ../_static/png/plot_joint.png
     :height: 674
     :width: 1366
@@ -143,22 +180,72 @@ Finally, let's plot all line intersections present on the table's PDF page.
     :alt: A plot of all line intersections on a PDF page
     :align: left
 
+textedge
+^^^^^^^^
+
+You can also visualize the textedges found on a page by specifying ``kind='textedge'``. To know more about what a "textedge" is, you can see pages 20, 35 and 40 of `Anssi Nurminen's master's thesis <http://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3>`_.
+
+::
+
+    >>> camelot.plot(tables[0], kind='textedge')
+    >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -plot textedge foo.pdf
+
+.. figure:: ../_static/png/plot_textedge.png
+    :height: 674
+    :width: 1366
+    :scale: 50%
+    :alt: A plot of relevant textedges on a PDF page
+    :align: left
+
 Specify table areas
 -------------------
 
-Since :ref:`Stream <stream>` treats the whole page as a table, `for now`_, it's useful to specify table boundaries in cases such as `these <../_static/pdf/table_areas.pdf>`__. You can plot the text on this page and note the top left and bottom right coordinates of the table.
+In cases such as `these <../_static/pdf/table_areas.pdf>`__, it can be useful to specify exact table boundaries. You can plot the text on this page and note the top left and bottom right coordinates of the table.
 
 Table areas that you want Camelot to analyze can be passed as a list of comma-separated strings to :meth:`read_pdf() <camelot.read_pdf>`, using the ``table_areas`` keyword argument.
-
-.. _for now: https://github.com/socialcopsdev/camelot/issues/102
 
 ::
 
     >>> tables = camelot.read_pdf('table_areas.pdf', flavor='stream', table_areas=['316,499,566,337'])
     >>> tables[0].df
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -T 316,499,566,337 table_areas.pdf
+
 .. csv-table::
   :file: ../_static/csv/table_areas.csv
+
+.. note:: ``table_areas`` accepts strings of the form x1,y1,x2,y2 where (x1, y1) -> top-left and (x2, y2) -> bottom-right in PDF coordinate space. In PDF coordinate space, the bottom-left corner of the page is the origin, with coordinates (0, 0).
+
+Specify table regions
+---------------------
+
+However there may be cases like `[1] <../_static/pdf/table_regions.pdf>`__ and `[2] <https://github.com/camelot-dev/camelot/blob/master/tests/files/tableception.pdf>`__, where the table might not lie at the exact coordinates every time but in an approximate region.
+
+You can use the ``table_regions`` keyword argument to :meth:`read_pdf() <camelot.read_pdf>` to solve for such cases. When ``table_regions`` is specified, Camelot will only analyze the specified regions to look for tables.
+
+::
+
+    >>> tables = camelot.read_pdf('table_regions.pdf', table_regions=['170,370,560,270'])
+    >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -R 170,370,560,270 table_regions.pdf
+
+.. csv-table::
+  :file: ../_static/csv/table_regions.csv
 
 Specify column separators
 -------------------------
@@ -178,6 +265,12 @@ Let's get back to the *x* coordinates we got from plotting the text that exists 
     >>> tables = camelot.read_pdf('column_separators.pdf', flavor='stream', columns=['72,95,209,327,442,529,566,606,683'])
     >>> tables[0].df
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -C 72,95,209,327,442,529,566,606,683 column_separators.pdf
+
 .. csv-table::
 
     "...","...","...","...","...","...","...","...","...","..."
@@ -196,6 +289,12 @@ To deal with cases like the output from the previous section, you can pass ``spl
 
     >>> tables = camelot.read_pdf('column_separators.pdf', flavor='stream', columns=['72,95,209,327,442,529,566,606,683'], split_text=True)
     >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot -split stream -C 72,95,209,327,442,529,566,606,683 column_separators.pdf
 
 .. csv-table::
 
@@ -217,12 +316,18 @@ In this case, the text that `other tools`_ return, will be ``24.912``. This is r
 
 You can solve this by passing ``flag_size=True``, which will enclose the superscripts and subscripts with ``<s></s>``, based on font size, as shown below.
 
-.. _other tools: https://github.com/socialcopsdev/camelot/wiki/Comparison-with-other-PDF-Table-Extraction-libraries-and-tools
+.. _other tools: https://github.com/camelot-dev/camelot/wiki/Comparison-with-other-PDF-Table-Extraction-libraries-and-tools
 
 ::
 
     >>> tables = camelot.read_pdf('superscript.pdf', flavor='stream', flag_size=True)
     >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot -flag stream superscript.pdf
 
 .. csv-table::
 
@@ -232,10 +337,87 @@ You can solve this by passing ``flag_size=True``, which will enclose the supersc
     "Madhya Pradesh","27.13","23.57","-","-","3.56","0.38","-","1.86","-","1.28"
     "...","...","...","...","...","...","...","...","...","...","..."
 
-Control how text is grouped into rows
--------------------------------------
+Strip characters from text
+--------------------------
 
-You can pass ``row_close_tol=<+int>`` to group the rows closer together, as shown below.
+You can strip unwanted characters like spaces, dots and newlines from a string using the ``strip_text`` keyword argument. Take a look at `this PDF <https://github.com/camelot-dev/camelot/blob/master/tests/files/tabula/12s0324.pdf>`_ as an example, the text at the start of each row contains a lot of unwanted spaces, dots and newlines.
+
+::
+
+    >>> tables = camelot.read_pdf('12s0324.pdf', flavor='stream', strip_text=' .\n')
+    >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot -strip ' .\n' stream 12s0324.pdf
+
+.. csv-table::
+
+    "...","...","...","...","...","...","...","...","...","..."
+    "Forcible rape","17.5","2.6","14.9","17.2","2.5","14.7","–","–","–"
+    "Robbery","102.1","25.5","76.6","90.0","22.9","67.1","12.1","2.5","9.5"
+    "Aggravated assault","338.4","40.1","298.3","264.0","30.2","233.8","74.4","9.9","64.5"
+    "Property crime","1,396 .4","338 .7","1,057 .7","875 .9","210 .8","665 .1","608 .2","127 .9","392 .6"
+    "Burglary","240.9","60.3","180.6","205.0","53.4","151.7","35.9","6.9","29.0"
+    "...","...","...","...","...","...","...","...","...","..."
+
+Improve guessed table areas
+---------------------------
+
+While using :ref:`Stream <stream>`, automatic table detection can fail for PDFs like `this one <https://github.com/camelot-dev/camelot/blob/master/tests/files/edge_tol.pdf>`_. That's because the text is relatively far apart vertically, which can lead to shorter textedges being calculated.
+
+.. note:: To know more about how textedges are calculated to guess table areas, you can see pages 20, 35 and 40 of `Anssi Nurminen's master's thesis <http://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3>`_.
+
+Let's see the table area that is detected by default.
+
+::
+
+    >>> tables = camelot.read_pdf('edge_tol.pdf', flavor='stream')
+    >>> camelot.plot(tables[0], kind='contour')
+    >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -plot contour edge.pdf
+
+.. figure:: ../_static/png/edge_tol_1.png
+    :height: 674
+    :width: 1366
+    :scale: 50%
+    :alt: Table area with default edge_tol
+    :align: left
+
+To improve the detected area, you can increase the ``edge_tol`` (default: 50) value to counter the effect of text being placed relatively far apart vertically. Larger ``edge_tol`` will lead to longer textedges being detected, leading to an improved guess of the table area. Let's use a value of 500.
+
+::
+
+    >>> tables = camelot.read_pdf('edge_tol.pdf', flavor='stream', edge_tol=500)
+    >>> camelot.plot(tables[0], kind='contour')
+    >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -e 500 -plot contour edge.pdf
+
+.. figure:: ../_static/png/edge_tol_2.png
+    :height: 674
+    :width: 1366
+    :scale: 50%
+    :alt: Table area with default edge_tol
+    :align: left
+
+As you can see, the guessed table area has improved!
+
+Improve guessed table rows
+--------------------------
+
+You can pass ``row_tol=<+int>`` to group the rows closer together, as shown below.
 
 ::
 
@@ -253,8 +435,14 @@ You can pass ``row_close_tol=<+int>`` to group the rows closer together, as show
 
 ::
 
-    >>> tables = camelot.read_pdf('group_rows.pdf', flavor='stream', row_close_tol=10)
+    >>> tables = camelot.read_pdf('group_rows.pdf', flavor='stream', row_tol=10)
     >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot stream -r 10 group_rows.pdf
 
 .. csv-table::
 
@@ -267,11 +455,11 @@ You can pass ``row_close_tol=<+int>`` to group the rows closer together, as show
 Detect short lines
 ------------------
 
-There might be cases while using :ref:`Lattice <lattice>` when smaller lines don't get detected. The size of the smallest line that gets detected is calculated by dividing the PDF page's dimensions with a scaling factor called ``line_size_scaling``. By default, its value is 15.
+There might be cases while using :ref:`Lattice <lattice>` when smaller lines don't get detected. The size of the smallest line that gets detected is calculated by dividing the PDF page's dimensions with a scaling factor called ``line_scale``. By default, its value is 15.
 
-As you can guess, the larger the ``line_size_scaling``, the smaller the size of lines getting detected.
+As you can guess, the larger the ``line_scale``, the smaller the size of lines getting detected.
 
-.. warning:: Making ``line_size_scaling`` very large (>150) will lead to text getting detected as lines.
+.. warning:: Making ``line_scale`` very large (>150) will lead to text getting detected as lines.
 
 Here's a `PDF <../_static/pdf/short_lines.pdf>`__ where small lines separating the the headers don't get detected with the default value of 15.
 
@@ -291,13 +479,19 @@ Let's plot the table for this PDF.
     :alt: A plot of the PDF table with short lines
     :align: left
 
-Clearly, the smaller lines separating the headers, couldn't be detected. Let's try with ``line_size_scaling=40``, and plot the table again.
+Clearly, the smaller lines separating the headers, couldn't be detected. Let's try with ``line_scale=40``, and plot the table again.
 
 ::
 
-    >>> tables = camelot.read_pdf('short_lines.pdf', line_size_scaling=40)
+    >>> tables = camelot.read_pdf('short_lines.pdf', line_scale=40)
     >>> camelot.plot(tables[0], kind='grid')
     >>> plt.show()
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -scale 40 -plot grid short_lines.pdf
 
 .. figure:: ../_static/png/short_lines_2.png
     :alt: An improved plot of the PDF table with short lines
@@ -338,7 +532,7 @@ We'll use the `PDF <../_static/pdf/short_lines.pdf>`__ from the previous example
 
 ::
 
-    >>> tables = camelot.read_pdf('short_lines.pdf', line_size_scaling=40, shift_text=[''])
+    >>> tables = camelot.read_pdf('short_lines.pdf', line_scale=40, shift_text=[''])
     >>> tables[0].df
 
 .. csv-table::
@@ -359,8 +553,14 @@ No surprises there — it did remain in place (observe the strings "2400" and "A
 
 ::
 
-    >>> tables = camelot.read_pdf('short_lines.pdf', line_size_scaling=40, shift_text=['r', 'b'])
+    >>> tables = camelot.read_pdf('short_lines.pdf', line_scale=40, shift_text=['r', 'b'])
     >>> tables[0].df
+
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -scale 40 -shift r -shift b short_lines.pdf
 
 .. csv-table::
 
@@ -407,6 +607,12 @@ We don't need anything else. Now, let's pass ``copy_text=['v']`` to copy text in
     >>> tables = camelot.read_pdf('copy_text.pdf', copy_text=['v'])
     >>> tables[0].df
 
+.. tip::
+    Here's how you can do the same with the :ref:`command-line interface <cli>`.
+    ::
+
+        $ camelot lattice -copy v copy_text.pdf
+
 .. csv-table::
 
     "Sl. No.","Name of State/UT","Name of District","Disease/ Illness","No. of Cases","No. of Deaths","Date of start of outbreak","Date of reporting","Current Status","..."
@@ -416,3 +622,14 @@ We don't need anything else. Now, let's pass ``copy_text=['v']`` to copy text in
     "4","West Bengal","West Medinipur","iv. Acute Diarrhoeal Disease","145","0","04/01/14","05/01/14","Under control","..."
     "4","West Bengal","Birbhum","v.  Food Poisoning","199","0","31/12/13","31/12/13","Under control","..."
     "4","West Bengal","Howrah","vi. Viral Hepatitis A &E","85","0","26/12/13","27/12/13","Under surveillance","..."
+
+Tweak layout generation
+-----------------------
+
+Camelot is built on top of PDFMiner's functionality of grouping characters on a page into words and sentences. In some cases (such as `#170 <https://github.com/camelot-dev/camelot/issues/170>`_ and `#215 <https://github.com/camelot-dev/camelot/issues/215>`_), PDFMiner can group characters that should belong to the same sentence into separate sentences.
+
+To deal with such cases, you can tweak PDFMiner's `LAParams kwargs <https://github.com/euske/pdfminer/blob/master/pdfminer/layout.py#L33>`_ to improve layout generation, by passing the keyword arguments as a dict using ``layout_kwargs`` in :meth:`read_pdf() <camelot.read_pdf>`. To know more about the parameters you can tweak, you can check out `PDFMiner docs <https://euske.github.io/pdfminer/>`_.
+
+::
+
+    >>> tables = camelot.read_pdf('foo.pdf', layout_kwargs={'detect_vertical': False})
